@@ -1,8 +1,6 @@
 #pragma once
-#include <cstddef>
 #include <algorithm>
-#include <cstring>
-#include <stdexcept>
+#include <string>
 using ValueType = double;
 class Vector
 {
@@ -104,7 +102,10 @@ public:
 
     size_t capacity() const { return _capacity; };
 
-    double loadFactor() const;   //??????????????????????????????????????????????????????????????????????????????????
+    double loadFactor() const{
+        if (_capacity == 0) return 0.0;
+        return static_cast<double>(_size) / _capacity;
+    }
 
     ValueType& operator[](size_t idx){ return _data[idx]; }
 
@@ -114,13 +115,29 @@ public:
         for (size_t i = 0; i < _size; ++i){
             if (_data[i] == value) return static_cast<long long>(i);
         }
-        return -1; //????????
+        return -1;
     }
    
-    //! Если capacity > _capacity, то выделить новый участок памяти размером capacity и перенести вектор туда, иначе - ничего
-    void reserve(size_t capacity);
-	//! Уменьшить capacity до size
-    void shrinkToFit();
+    void reserve(size_t capacity){
+        if(capacity > _capacity){
+            size_t newCapacity = std::max(static_cast<size_t>(_capacity * _multiplicativeCoef), capacity);
+            ValueType* newData = new ValueType[newCapacity];
+            std::copy(_data, _data+_size, newData);
+            delete[] _data;
+            _data = newData;
+            _capacity = newCapacity;
+        }
+    }
+
+    void shrinkToFit(){
+        if (_capacity > _size){
+            ValueType* newData = new ValueType[_size];
+            std::copy(_data, _data+_size, newData);
+            delete[] _data;
+            _data = newData;
+            _capacity = _size;
+        }
+    }
 	
     class Iterator
     {
