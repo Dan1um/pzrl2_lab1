@@ -1,6 +1,6 @@
 #pragma once
 #include <algorithm>
-#include <string>
+#include <cstring>
 using ValueType = double;
 class Vector
 {
@@ -46,11 +46,11 @@ public:
     }
 
     void pushBack(const ValueType& value){
-        reserve(++_size);
-        _data[++_size] = value;
+        reserve(_size + 1);
+        _data[_size++] = value;
     }
     void pushFront(const ValueType& value){
-        reserve(++_size);
+        reserve(_size + 1);
         std::memmove(_data + 1, _data, _size * sizeof(ValueType));
         _data[0] = value;
         ++_size;
@@ -58,7 +58,7 @@ public:
 
     void insert(const ValueType& value, size_t pos){
         if (pos > _size) pos = _size;
-        reserve(++_size);
+        reserve(_size + 1);
         std::memmove(_data + pos + 1, _data + pos, (_size - pos) * sizeof(ValueType));
         _data[pos] = value;
         ++_size;
@@ -143,15 +143,15 @@ public:
     {
         ValueType* _ptr;
     public:
-        explicit Iterator(ValueType* ptr);
-        ValueType& operator*();
-        const ValueType& operator*() const;
-        ValueType* operator->();
-        const ValueType* operator->() const;
-        Iterator operator++();
-        Iterator operator++(int);
-        bool operator==(const Iterator& other) const;
-        bool operator!=(const Iterator& other) const;
+        explicit Iterator(ValueType* ptr) : _ptr(ptr) {}
+        ValueType& operator*() {return *_ptr;}
+        const ValueType& operator*() const {return *_ptr;}
+        ValueType* operator->() {return _ptr;}
+        const ValueType* operator->() const {return _ptr;}
+        Iterator operator++() {++_ptr; return *this;}
+        Iterator operator++(int) { Iterator tmp = *this; ++_ptr; return tmp; }
+        bool operator==(const Iterator& other) const { return _ptr == other._ptr; }
+        bool operator!=(const Iterator& other) const { return _ptr != other._ptr; }
     };
 
     Iterator begin() { return Iterator(_data); }
