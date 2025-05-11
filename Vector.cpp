@@ -41,20 +41,25 @@ Vector& Vector::operator=(Vector&& other) noexcept{
     return *this;
 }
 Vector::~Vector(){
+    clear();
+}
+
+void Vector::clear() {
     delete[] _data;
+    _data = nullptr;
+    _size = 0;
+    _capacity = 0;
 }
 
 void Vector::pushBack(const ValueType& value){
     if(_size >= _capacity){
-        size_t newCapacity = (_capacity == 0) ? 1 : static_cast<size_t>(_capacity * _multiplicativeCoef);
-        reserve(newCapacity);
+        reserve((_capacity == 0) ? 1 : static_cast<size_t>(_capacity * _multiplicativeCoef));
     }
     _data[_size++] = value;
 }
 void Vector::pushFront(const ValueType& value){
-    if (_size >= _capacity) {
-        size_t newCapacity = (_capacity == 0) ? 1 : static_cast<size_t>(_capacity * _multiplicativeCoef);
-        reserve(newCapacity);
+    if(_size >= _capacity){
+        reserve((_capacity == 0) ? 1 : static_cast<size_t>(_capacity * _multiplicativeCoef));
     }
     std::memmove(_data + 1, _data, _size * sizeof(ValueType));
     _data[0] = value;
@@ -135,28 +140,17 @@ long long Vector::find(const ValueType& value) const {
 }
    
 void Vector::reserve(size_t capacity){
-    if(capacity <= _capacity){
-        return;
-    }
-    size_t expanded = capacity;
-    if(_capacity > 0){
-        size_t newCapacity = static_cast<size_t>(capacity * _multiplicativeCoef);
-        if (newCapacity > expanded){
-            expanded = newCapacity;
-        }
-    }
-    ValueType* newData = new ValueType[expanded];
+    if(capacity <= _capacity) return;
+    ValueType* newData = new ValueType[capacity];
     std::copy(_data, _data+_size, newData);
     delete[] _data;
     _data = newData;
-    _capacity = expanded;
+    _capacity = capacity;
 }
 
 void Vector::shrinkToFit(){
     if (_size == 0){
-        delete[] _data;
-        _data = nullptr;
-        _capacity = 0;
+        clear();
     }
     else if (_capacity > _size){
         ValueType* newData = new ValueType[_size];

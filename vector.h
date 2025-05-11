@@ -11,7 +11,7 @@ public:
     explicit Vector(Vector&& other) noexcept;
     Vector& operator=(Vector&& other) noexcept;
     ~Vector();
-
+    void clear();
     void pushBack(const ValueType& value);
     void pushFront(const ValueType& value);
 
