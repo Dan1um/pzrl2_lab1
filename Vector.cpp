@@ -1,4 +1,5 @@
 #include "vector.h"
+#include <stdexcept>
 #include <algorithm>
 #include <cstring>
 
@@ -66,7 +67,7 @@ void Vector::insert(const ValueType* values, size_t size, size_t pos){
     if (pos > _size) pos = _size;
     reserve(_size + size);
     std::memmove(_data + pos + size, _data + pos, (_size - pos) * sizeof(ValueType));
-    std::copy(values, values + 1, _data + pos);
+    std::copy(values, values + size, _data + pos);
     _size += size;
 }
 
@@ -75,12 +76,18 @@ void Vector::insert(const Vector& vector, size_t pos){
 }
 
 void Vector::popBack(){
+    if(_size == 0){
+        throw std::out_of_range("Пустой вектор");
+    }
     --_size;
 }
 
 void Vector::popFront(){
+    if(_size == 0){
+        throw std::out_of_range("Пустой вектор");
+    }
     std::memmove(_data, _data + 1, (_size - 1) * sizeof(ValueType));
-    --_size;
+    --_size;    
 }
 
 void Vector::erase(size_t pos, size_t count){
@@ -105,8 +112,14 @@ double Vector::loadFactor() const{
     return static_cast<double>(_size) / _capacity;
 }
 
-ValueType& Vector::operator[](size_t idx){ return _data[idx]; }
-const ValueType& Vector::operator[](size_t idx) const { return _data[idx]; }
+ValueType& Vector::operator[](size_t idx){
+    if (idx >= _size) throw std::out_of_range("Выход за границы оператора []");
+    return _data[idx]; 
+}
+const ValueType& Vector::operator[](size_t idx) const {
+    if (idx >= _size) throw std::out_of_range("Выход за границы оператора []");
+    return _data[idx];
+}
 
 long long Vector::find(const ValueType& value) const {
     for (size_t i = 0; i < _size; ++i){
@@ -117,7 +130,7 @@ long long Vector::find(const ValueType& value) const {
    
 void Vector::reserve(size_t capacity){
     if(capacity > _capacity){
-        size_t newCapacity = std::max(static_cast<size_t>(_capacity * _multiplicativeCoef), capacity);
+        size_t newCapacity = static_cast<size_t>(capacity * _multiplicativeCoef);
         ValueType* newData = new ValueType[newCapacity];
         std::copy(_data, _data+_size, newData);
         delete[] _data;
@@ -127,7 +140,12 @@ void Vector::reserve(size_t capacity){
 }
 
 void Vector::shrinkToFit(){
-    if (_capacity > _size){
+    if (_size == 0){
+        delete[] _data;
+        _data = nullptr;
+        _capacity = 0;
+    }
+    else if (_capacity > _size){
         ValueType* newData = new ValueType[_size];
         std::copy(_data, _data+_size, newData);
         delete[] _data;
