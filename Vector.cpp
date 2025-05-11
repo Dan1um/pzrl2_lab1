@@ -130,12 +130,18 @@ long long Vector::find(const ValueType& value) const {
    
 void Vector::reserve(size_t capacity){
     if(capacity > _capacity){
-        size_t newCapacity = static_cast<size_t>(capacity * _multiplicativeCoef);
-        ValueType* newData = new ValueType[newCapacity];
+        size_t expanded = capacity;
+        if(_capacity > 0){
+            size_t newCapacity = static_cast<size_t>(capacity * _multiplicativeCoef);
+            if (newCapacity > expanded){
+                expanded == newCapacity;
+            }
+        }
+        ValueType* newData = new ValueType[expanded];
         std::copy(_data, _data+_size, newData);
         delete[] _data;
         _data = newData;
-        _capacity = newCapacity;
+        _capacity = expanded;
     }
 }
 
